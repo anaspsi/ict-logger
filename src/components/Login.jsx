@@ -1,11 +1,23 @@
 import axios from "axios"
+import { useEffect } from "react"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import PSIAlert from "./PSIAlert"
 
 export default function Login() {
     const [isSigning, setIsSigning] = useState(false)
     const [userName, setUserName] = useState('')
     const [userPassword, setUserPassword] = useState('')
     const [messageFromServer, setMessageFromServer] = useState('')
+    const [messageFromServerType, setMessageFromServerType] = useState('warning')
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (localStorage.getItem('token')) {
+            navigate('/dashboard')
+        }
+    }, [])
+
 
     function handleClick() {
         setIsSigning(true)
@@ -16,14 +28,14 @@ export default function Login() {
         axios
             .post(import.meta.env.VITE_APP_ENDPOINT + '/users/login', dataInput)
             .then((response) => {
-                console.log(response)
-                console.log('well')
+                const token = response.data.token
+                localStorage.setItem('token', token)
                 setIsSigning(false)
                 setMessageFromServer('')
+                navigate('/dashboard')
             }).catch(error => {
-                console.log(error.response.data.errors.message)
                 setMessageFromServer(error.response.data.errors.message)
-                console.error('nah error')
+                setMessageFromServerType('danger')
                 setIsSigning(false)
             })
     }
@@ -33,16 +45,16 @@ export default function Login() {
     }
 
     return (
-        <div className="container-fluid">
+        <div className="container-fluid mt-3">
             <div className="row">
                 <div className="col-md-12">
                     <h1>Welcome 👋</h1>
                     <div className="form-floating mb-3">
-                        <input type="text" className="form-control" id="floatingInput" placeholder="Fulan" onChange={(e) => setUserName(e.target.value)} autoComplete="off" />
+                        <input type="text" className="form-control" id="floatingInput" placeholder="Fulan" maxLength={40} onChange={(e) => setUserName(e.target.value)} autoComplete="off" />
                         <label htmlFor="floatingInput">User ID</label>
                     </div>
                     <div className="form-floating mb-3">
-                        <input type="password" className="form-control" id="floatingPassword" placeholder="Password" onChange={(e) => setUserPassword(e.target.value)} />
+                        <input type="password" className="form-control" id="floatingPassword" placeholder="Password" maxLength={40} onChange={(e) => setUserPassword(e.target.value)} />
                         <label htmlFor="floatingPassword">Password</label>
                     </div>
                 </div>
@@ -54,23 +66,9 @@ export default function Login() {
             </div>
             <div className="row">
                 <div className="col-mb-12">
-                    <PSIAlert propMessage={messageFromServer} onClickCloseAlert={handleClickCloseAlert} />
+                    <PSIAlert propMessage={messageFromServer} propMessageType={messageFromServerType} onClickCloseAlert={handleClickCloseAlert} />
                 </div>
             </div>
         </div>
-    )
-}
-
-function PSIAlert({ propMessage, onClickCloseAlert }) {
-
-    const itsDisplay = propMessage.length === 0 ? 'alert alert-warning alert-dismissible fade hide' : 'alert alert-warning alert-dismissible fade show'
-
-    return (
-        <>
-            <div className={itsDisplay} role="alert">
-                {propMessage}
-                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={onClickCloseAlert}></button>
-            </div>
-        </>
     )
 }
