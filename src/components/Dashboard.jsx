@@ -8,6 +8,7 @@ import Home from "./Home"
 export default function Dashboard() {
     const navigate = useNavigate()
     const [activeComponent, setactiveComponent] = useState('home')
+    
     useEffect(() => {
         if (localStorage.getItem('token')) {
         } else {
