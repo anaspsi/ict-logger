@@ -5,28 +5,31 @@ export default function Login() {
     const [isSigning, setIsSigning] = useState(false)
     const [userName, setUserName] = useState('')
     const [userPassword, setUserPassword] = useState('')
-    const [messageFromServer , setMessageFromServer] = useState('')
+    const [messageFromServer, setMessageFromServer] = useState('')
 
     function handleClick() {
-        console.log(import.meta.env.VITE_APP_TITLE)
         setIsSigning(true)
         const dataInput = JSON.stringify({
-            username: 'well', password: 'go'
+            username: userName, password: userPassword
         })
-        setMessageFromServer('yuhu')
+
         axios
             .post(import.meta.env.VITE_APP_ENDPOINT + '/users/login', dataInput)
             .then((response) => {
                 console.log(response)
                 console.log('well')
                 setIsSigning(false)
+                setMessageFromServer('')
             }).catch(error => {
                 console.log(error.response.data.errors.message)
-                
+                setMessageFromServer(error.response.data.errors.message)
                 console.error('nah error')
                 setIsSigning(false)
             })
+    }
 
+    function handleClickCloseAlert() {
+        setMessageFromServer('')
     }
 
     return (
@@ -51,27 +54,22 @@ export default function Login() {
             </div>
             <div className="row">
                 <div className="col-mb-12">
-                    <PSIAlert propMessage={messageFromServer} />
+                    <PSIAlert propMessage={messageFromServer} onClickCloseAlert={handleClickCloseAlert} />
                 </div>
             </div>
         </div>
     )
 }
 
-function PSIAlert({propMessage}) {
-    const [message , setMessage] = useState(propMessage)
-    console.log({message: message})
-    console.log({propMessage: propMessage})
-    const itsDisplay = message.length === 0 ? 'alert alert-warning alert-dismissible fade hide' : 'alert alert-warning alert-dismissible fade show'
-    
-    function handleClick() {
-        // setMessage('')
-    }
+function PSIAlert({ propMessage, onClickCloseAlert }) {
+
+    const itsDisplay = propMessage.length === 0 ? 'alert alert-warning alert-dismissible fade hide' : 'alert alert-warning alert-dismissible fade show'
+
     return (
         <>
             <div className={itsDisplay} role="alert">
                 {propMessage}
-                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={handleClick}></button>
+                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={onClickCloseAlert}></button>
             </div>
         </>
     )
