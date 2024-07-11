@@ -34,7 +34,11 @@ export default function Login() {
                 setMessageFromServer('')
                 navigate('/dashboard')
             }).catch(error => {
-                setMessageFromServer(error.response.data.errors.message)
+                try {
+                    setMessageFromServer(error.response.data.errors.message)
+                } catch (e) {
+                    setMessageFromServer(error.message)
+                }
                 setMessageFromServerType('danger')
                 setIsSigning(false)
             })
