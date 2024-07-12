@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import About from "./About"
-import PSINavbar from "./PSINavbar"
+import PSINavbar from "../components/PSINavbar"
 import { useState } from "react"
 import Home from "./Home"
 

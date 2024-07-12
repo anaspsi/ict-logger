@@ -2,7 +2,7 @@ import axios from "axios"
 import { useEffect } from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import PSIAlert from "./PSIAlert"
+import PSIAlert from "../components/PSIAlert"
 
 export default function Login() {
     const [isSigning, setIsSigning] = useState(false)

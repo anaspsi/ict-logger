@@ -1,6 +1,7 @@
 import axios from "axios"
+import { useEffect } from "react"
 import { useState } from "react"
-
+import '../home.css'
 export default function Home() {
     const [formData, setFormData] = useState({
         period1: "",
@@ -12,29 +13,63 @@ export default function Home() {
         operator_name: "",
         programming_file: "",
     })
+    const [rowData, setRowData] = useState({ data: [] })
 
+    const [isSearching, setIsSearching] = useState(false)
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
+
+    useEffect(() => {
+        let aTable = document.getElementById('coba')
+        let aStack1 = document.getElementById('stack1')
+        let aStack2 = document.getElementById('stack2')
+        let aStack3 = document.getElementById('stack3')
+        let aStack4 = document.getElementById('stack4')
+        let aStack5 = document.getElementById('stack5')
+        let aStack6 = document.getElementById('stack6')
+        let aStack7 = document.getElementById('stack7')
+        let aStack8 = document.getElementById('stack8')
+        aTable.style.cssText = `height: ${window.innerHeight
+            - aStack1.offsetHeight
+            - aStack2.offsetHeight
+            - aStack3.offsetHeight
+            - aStack4.offsetHeight
+            - aStack5.offsetHeight
+            - aStack6.offsetHeight
+            - aStack7.offsetHeight
+            - aStack8.offsetHeight
+            - 100
+            }px`
+
+        console.log(window.innerHeight)
+    }, [])
 
     function handleClickSearch() {
         const params = new URLSearchParams(formData).toString()
         const config = {
             headers: {
-                Authorization: localStorage.getItem('token')
+                Authorization: 'Bearer ' + localStorage.getItem('token')
             }
         }
+        setIsSearching(true)
         axios.get(import.meta.env.VITE_APP_ENDPOINT + '/ict/search?' + params, config)
             .then((response) => {
-                console.log(response.data)
+                const datanya = response.data.data
+                setRowData({
+                    data: datanya
+                })
+                setIsSearching(false)
             }).catch(error => {
+                setIsSearching(false)
                 console.log(error)
             })
     }
 
+
     return (
         <>
-            <div className="row mt-3">
+            <div className="row mt-3" id="stack1">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text" >Period from</span>
@@ -44,7 +79,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" id="stack2">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text" >ICT No</span>
@@ -52,7 +87,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" id="stack3">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text" >Model</span>
@@ -60,7 +95,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" id="stack4">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text">File Name</span>
@@ -68,7 +103,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" id="stack5">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text">Item</span>
@@ -76,7 +111,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" id="stack6">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text">Operator Name</span>
@@ -84,7 +119,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" id="stack7">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm mb-1">
                         <span className="input-group-text">Programming File</span>
@@ -92,20 +127,20 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" id="stack8">
                 <div className="col-md-6 mb-3">
                     <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                        <button type="button" className="btn btn-primary" onClick={handleClickSearch}>Search</button>
+                        <button type="button" className="btn btn-primary" disabled={isSearching} onClick={handleClickSearch}>Search</button>
                         <button type="button" className="btn btn-outline-primary">Reset search criteria</button>
                     </div>
                 </div>
             </div>
             <div className="row">
                 <div className="col-md-12">
-                    <div className="table-responsive">
+                    <div className="table-responsive" id="coba">
                         <table className="table align-middle table-sm table-bordered">
                             <thead className="text-center">
-                                <tr>
+                                <tr className="first">
                                     <th rowSpan={2} className="align-middle">Date</th>
                                     <th rowSpan={2} className="align-middle">Time</th>
                                     <th rowSpan={2} className="align-middle">ICT No</th>
@@ -122,7 +157,7 @@ export default function Home() {
                                     <th colSpan={6} className="text-center">Checked By</th>
                                     <th rowSpan={2} className="align-middle">Remark</th>
                                 </tr>
-                                <tr>
+                                <tr className="second">
                                     <th>Gilang</th>
                                     <th>Rico</th>
                                     <th>Adi S</th>
@@ -132,7 +167,25 @@ export default function Home() {
                                 </tr>
                             </thead>
                             <tbody>
-
+                                {
+                                    isSearching ? <tr><td colSpan={20}>Please wait</td></tr> : rowData.data.map((item, index) => {
+                                        return <tr key={index}>
+                                            <td>{item.ICT_Date}</td>
+                                            <td>{item.ICT_Time}</td>
+                                            <td>{item.ICT_No}</td>
+                                            <td>{item.ICT_Model}</td>
+                                            <td>{item.ICT_NFile}</td>
+                                            <td>{item.ICT_Step}</td>
+                                            <td>{item.ICT_Device}</td>
+                                            <td>{item.ICT_Item}</td>
+                                            <td>{item.ICT_BValue}</td>
+                                            <td>{item.ICT_AValue}</td>
+                                            <td>{item.ICT_Lupby}</td>
+                                            <td>{item.ICT_Level}</td>
+                                            <td>{item.ICT_PFile}</td>
+                                        </tr>
+                                    })
+                                }
                             </tbody>
                         </table>
                     </div>

@@ -1,11 +1,22 @@
+import axios from "axios";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 export default function PSINavbar({ selectedNav, onClickNav }) {
     const navigate = useNavigate()
     function handleSignout() {
         if (confirm('Are you sure ?')) {
-            localStorage.removeItem('token')
-            navigate('/')
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                }
+            }
+            axios.delete(import.meta.env.VITE_APP_ENDPOINT + '/users/logout', config)
+                .then((response) => {
+                    localStorage.removeItem('token')
+                    navigate('/')
+                }).catch(error => {
+                    console.log(error)
+                })
         }
     }
     return (
