@@ -2,6 +2,7 @@ import axios from "axios"
 import { useEffect } from "react"
 import { useState } from "react"
 import '../home.css'
+import { Container } from "react-bootstrap"
 export default function Home() {
     const [formData, setFormData] = useState({
         period1: "",
@@ -68,7 +69,7 @@ export default function Home() {
 
 
     return (
-        <>
+        <Container fluid>
             <div className="row mt-3" id="stack1">
                 <div className="col-md-6">
                     <div className="input-group input-group-sm mb-1">
@@ -191,6 +192,6 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-        </>
+        </Container>
     )
 }

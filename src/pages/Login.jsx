@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import PSIAlert from "../components/PSIAlert"
 
-export default function Login() {
+export default function Login({ onLoggedIn }) {
     const [isSigning, setIsSigning] = useState(false)
     const [userName, setUserName] = useState('')
     const [userPassword, setUserPassword] = useState('')
@@ -15,6 +15,9 @@ export default function Login() {
     useEffect(() => {
         if (localStorage.getItem('token')) {
             navigate('/dashboard')
+            onLoggedIn(true)
+        } else {
+            onLoggedIn(false)
         }
     }, [])
 
@@ -28,6 +31,7 @@ export default function Login() {
         axios
             .post(import.meta.env.VITE_APP_ENDPOINT + '/users/login', dataInput)
             .then((response) => {
+                onLoggedIn(true)
                 const token = response.data.token
                 localStorage.setItem('token', token)
                 setIsSigning(false)
