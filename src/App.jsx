@@ -12,6 +12,14 @@ export default function App() {
     setIsLoggedIn(theval)
   }
 
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      handleLoggedIn(true)
+    } else {
+      handleLoggedIn(false)
+    }
+  }, [])
+
   return (
     <div>
       {
@@ -21,6 +29,7 @@ export default function App() {
         <Route path="/" element={<Login onLoggedIn={handleLoggedIn} />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/about" element={<About />} />
+        <Route path="*" element={<Login onLoggedIn={handleLoggedIn} />} />
       </Routes>
     </div>
   )
