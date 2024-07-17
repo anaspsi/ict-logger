@@ -1,13 +1,36 @@
 import { Route, Routes } from "react-router-dom"
-import Login from "./components/Login"
-import Dashboard from "./components/Dashboard"
+import Login from "./pages/Login"
+import Dashboard from "./pages/Dashboard"
+import About from "./pages/About"
+import PSINavbar from "./components/PSINavbar"
+import { useEffect, useState } from "react"
+
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  function handleLoggedIn(theval) {
+    setIsLoggedIn(theval)
+  }
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      handleLoggedIn(true)
+    } else {
+      handleLoggedIn(false)
+    }
+  }, [])
+
   return (
-    <div className="mt-3">
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
+    <div>
+      {
+        isLoggedIn ? <PSINavbar onLoggedIn={handleLoggedIn} /> : ''
+      }
+      <Routes>
+        <Route path="/" element={<Login onLoggedIn={handleLoggedIn} />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/about" element={<About />} />
+        <Route path="*" element={<Login onLoggedIn={handleLoggedIn} />} />
+      </Routes>
     </div>
   )
 }
