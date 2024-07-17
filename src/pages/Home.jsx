@@ -2,10 +2,11 @@ import axios from "axios"
 import { useEffect } from "react"
 import { useState } from "react"
 import '../home.css'
-import { Badge, Container } from "react-bootstrap"
+import { Badge, Button, Container, Modal } from "react-bootstrap"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faFileExcel } from "@fortawesome/free-regular-svg-icons"
 import { saveAs } from "file-saver"
+import { useRef } from "react"
 
 export default function Home() {
     const [formData, setFormData] = useState({
@@ -19,11 +20,17 @@ export default function Home() {
         programming_file: "",
     })
     const [rowData, setRowData] = useState({ data: [] })
+    const [selectedRowData, setSelectedRowData] = useState({})
+    const [selectedRowDataIndex, setSelectedRowDataIndex] = useState(-1)
 
     const [isSearching, setIsSearching] = useState(false)
     const [isExporting, setIsExporting] = useState(false)
     const [pageAt, setPageAt] = useState(0)
     const [isMaxPage, setIsMaxPage] = useState(false)
+    const refInputDate1 = useRef(null)
+    const refInputDate2 = useRef(null)
+    const [userInfo, setUserInfo] = useState({})
+    const [show, setShow] = useState(false);
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -50,6 +57,34 @@ export default function Home() {
             - aStack8.offsetHeight
             - 130
             }px`
+        const currentDate = new Date().toISOString().substring(0, 10)
+
+        refInputDate1.current.value = currentDate
+        refInputDate2.current.value = currentDate
+
+        setFormData({
+            period1: currentDate,
+            period2: currentDate,
+            ict_no: "",
+            model: "",
+            file_name: "",
+            item: "",
+            operator_name: "",
+            programming_file: "",
+        })
+
+        const config = {
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            }
+        }
+        axios.get(import.meta.env.VITE_APP_ENDPOINT + '/user', config)
+            .then((response) => {
+                const datanya = response.data
+                setUserInfo({ ...datanya })
+            }).catch(error => {
+
+            })
     }, [])
 
     function handleClickSearch() {
@@ -109,7 +144,46 @@ export default function Home() {
                 setIsExporting(false)
             })
         }
+    }
 
+    function handleClickCheck(parIndex, parData) {
+        setSelectedRowData(parData)
+        setShow(true)
+        setSelectedRowDataIndex(parIndex)
+    }
+
+    function handleClose() {
+        setShow(false)
+    }
+
+    function handleSetChecked() {
+        if (confirm('Are you sure ?')) {
+            const config = {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            }
+            axios.put(import.meta.env.VITE_APP_ENDPOINT + '/ict/check', selectedRowData, config)
+                .then((response) => {
+                    const theChecekedDate = new Date().toISOString().replace('T', ' ').replace('Z', '')
+                    const nextRow = rowData.data.map((item, index) => {
+                        if (index == selectedRowDataIndex) {
+                            return {
+                                ...item, ICT_Lupdt1: theChecekedDate
+                            }
+                        } else {
+                            return item
+                        }
+                    })
+                    setRowData({
+                        data: nextRow
+                    })
+                    setShow(false)
+                }).catch(error => {
+                    alert(error)
+                })
+
+        }
     }
 
     return (
@@ -119,9 +193,9 @@ export default function Home() {
                     <div className="col-md-6">
                         <div className="input-group input-group-sm mb-1">
                             <span className="input-group-text" > Period from</span>
-                            <input type="date" className="form-control" name="period1" onChange={handleChange} />
+                            <input type="date" className="form-control" name="period1" onChange={handleChange} ref={refInputDate1} />
                             <span className="input-group-text" >To</span>
-                            <input type="date" className="form-control" name="period2" onChange={handleChange} />
+                            <input type="date" className="form-control" name="period2" onChange={handleChange} ref={refInputDate2} />
                         </div>
                     </div>
                 </div>
@@ -234,6 +308,12 @@ export default function Home() {
                                             <td>{item.ICT_Lupby}</td>
                                             <td>{item.ICT_Level}</td>
                                             <td style={{ whiteSpace: 'nowrap' }}>{item.ICT_PFile}</td>
+                                            <PSITd proInfo={item.ICT_Lupdt1} proRole={1} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PSITd proInfo={item.ICT_Lupdt3} proRole={3} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PSITd proInfo={item.ICT_Lupdt2} proRole={2} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PSITd proInfo={item.ICT_Lupdt4} proRole={4} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PSITd proInfo={item.ICT_Lupdt5} proRole={5} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PSITd proInfo={item.ICT_Lupdt6} proRole={6} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
                                         </tr>
                                     })
                                 }
@@ -253,6 +333,40 @@ export default function Home() {
 
                 </div>
             </div>
+
+            <Modal show={show} onHide={handleClose} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirmation</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col">
+                            <div className="input-group input-group-sm mb-1">
+                                <span className="input-group-text" >Before Value</span>
+                                <input type="text" className="form-control" value={selectedRowData.ICT_BValue} disabled />
+                            </div>
+                            <div className="input-group input-group-sm mb-1">
+                                <span className="input-group-text" >After Value</span>
+                                <input type="text" className="form-control" value={selectedRowData.ICT_AValue} disabled />
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={handleSetChecked}>
+                        Conform
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
+    )
+}
+
+function PSITd({ proInfo, proRole, proCurrentRole, propData, propDataIndex, onCheck }) {
+    if (proInfo.substring(0, 4) == '1900') {
+        return <td className="text-center"> {proRole == proCurrentRole ? <button type="button" className="btn btn-sm btn-primary" onClick={(e) => onCheck(propDataIndex, propData)}>Check</button> : ''}</td>
+    }
+    return (
+        <td className="text-center">{proInfo}</td>
     )
 }
