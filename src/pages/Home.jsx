@@ -29,11 +29,16 @@ export default function Home() {
     const [isMaxPage, setIsMaxPage] = useState(false)
     const refInputDate1 = useRef(null)
     const refInputDate2 = useRef(null)
+    const refInputRemark = useRef(null)
     const [userInfo, setUserInfo] = useState({})
     const [show, setShow] = useState(false);
+    const [show2, setShow2] = useState(false);
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
+    }
+    function handleChangeRemark(e) {
+        setSelectedRowData({ ...selectedRowData, [e.target.name]: e.target.value })
     }
 
     useEffect(() => {
@@ -148,12 +153,20 @@ export default function Home() {
 
     function handleClickCheck(parIndex, parData) {
         setSelectedRowData(parData)
-        setShow(true)
         setSelectedRowDataIndex(parIndex)
+        setShow(true)
     }
 
     function handleClose() {
         setShow(false)
+    }
+    function handleCloseModalRemark() {
+        setShow2(false)
+    }
+    function handleShowModalRemark(parIndex, parData) {
+        setSelectedRowData(parData)
+        setSelectedRowDataIndex(parIndex)
+        setShow2(true)
     }
 
     function handleSetChecked() {
@@ -168,8 +181,37 @@ export default function Home() {
                     const theChecekedDate = new Date().toISOString().replace('T', ' ').replace('Z', '')
                     const nextRow = rowData.data.map((item, index) => {
                         if (index == selectedRowDataIndex) {
-                            return {
-                                ...item, ICT_Lupdt1: theChecekedDate
+                            switch (userInfo.role_id) {
+                                case '1':
+                                    return {
+                                        ...item, ICT_Lupdt1: theChecekedDate
+                                    }
+                                    break;
+                                case '2':
+                                    return {
+                                        ...item, ICT_Lupdt2: theChecekedDate
+                                    }
+                                    break;
+                                case '3':
+                                    return {
+                                        ...item, ICT_Lupdt3: theChecekedDate
+                                    }
+                                    break;
+                                case '4':
+                                    return {
+                                        ...item, ICT_Lupdt4: theChecekedDate
+                                    }
+                                    break;
+                                case '5':
+                                    return {
+                                        ...item, ICT_Lupdt5: theChecekedDate
+                                    }
+                                    break;
+                                case '6':
+                                    return {
+                                        ...item, ICT_Lupdt6: theChecekedDate
+                                    }
+                                    break;
                             }
                         } else {
                             return item
@@ -183,6 +225,45 @@ export default function Home() {
                     alert(error)
                 })
 
+        }
+    }
+
+    function hanldeSetRemark() {
+        if (confirm('Are you sure ?')) {
+            const config = {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            }
+            axios.put(import.meta.env.VITE_APP_ENDPOINT + '/ict/remark', selectedRowData, config)
+                .then((response) => {
+                    const nextRow = rowData.data.map((item, index) => {
+                        if (index == selectedRowDataIndex) {
+                            if (selectedRowData.ICT_Remark) {
+                                let newRemark = JSON.parse(selectedRowData.ICT_Remark)
+                                newRemark.push({ userid: userInfo.nick_name, remark: selectedRowData.ICT_RemarkNew })
+                                return {
+                                    ...item, ICT_Remark: JSON.stringify(newRemark)
+                                }
+                            } else {
+
+                                let newRemark = [{ userid: userInfo.nick_name, remark: selectedRowData.ICT_RemarkNew }]
+                                return {
+                                    ...item, ICT_Remark: JSON.stringify(newRemark)
+                                }
+                            }
+                        } else {
+                            return item
+                        }
+                    })
+                    setRowData({
+                        data: nextRow
+                    })
+
+                    setShow2(false)
+                }).catch(error => {
+                    alert(error)
+                })
         }
     }
 
@@ -263,7 +344,7 @@ export default function Home() {
             <div className="row">
                 <div className="col-md-12 mb-1">
                     <div className="table-responsive" id="coba">
-                        <table className="table align-middle table-sm table-bordered ">
+                        <table className="table align-middle table-sm table-bordered table-hover">
                             <thead className="text-center table-dark">
                                 <tr className="first">
                                     <th rowSpan={2} className="align-middle">Date</th>
@@ -294,7 +375,7 @@ export default function Home() {
                             <tbody>
                                 {
                                     isSearching ? <tr><td colSpan={20}>Please wait</td></tr> : rowData.data.map((item, index) => {
-                                        return <tr key={index}>
+                                        return <tr key={index} className="font-monospace">
                                             <td>{item.ICT_Date}</td>
                                             <td>{item.ICT_Time}</td>
                                             <td>{item.ICT_No}</td>
@@ -314,6 +395,7 @@ export default function Home() {
                                             <PSITd proInfo={item.ICT_Lupdt4} proRole={4} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
                                             <PSITd proInfo={item.ICT_Lupdt5} proRole={5} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
                                             <PSITd proInfo={item.ICT_Lupdt6} proRole={6} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PISTdRemark onShowModalRemark={handleShowModalRemark} propData={item} propDataIndex={index} />
                                         </tr>
                                     })
                                 }
@@ -358,6 +440,24 @@ export default function Home() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={show2} onHide={handleCloseModalRemark} size="lg" onEntered={() => { refInputRemark.current.focus() }}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Write remark</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col">
+                            <label className="form-label">Remark</label>
+                            <textarea ref={refInputRemark} className="form-control" rows="3" onChange={handleChangeRemark} name="ICT_RemarkNew"></textarea>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={hanldeSetRemark}>
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     )
 }
@@ -368,5 +468,21 @@ function PSITd({ proInfo, proRole, proCurrentRole, propData, propDataIndex, onCh
     }
     return (
         <td className="text-center">{proInfo}</td>
+    )
+}
+
+function PISTdRemark({ onShowModalRemark, propData, propDataIndex, }) {
+    let item = JSON.parse(propData.ICT_Remark)
+    if (item) {
+        return (
+            <td style={{ cursor: 'pointer' }} onClick={(e) => onShowModalRemark(propDataIndex, propData)}>
+                {item.map((item, index) => {
+                    return (<div key={index}><Badge bg="info" >{item.remark}</Badge> </div>)
+                })}
+            </td>
+        )
+    }
+    return (
+        <td style={{ cursor: 'pointer' }} onClick={(e) => onShowModalRemark(propDataIndex, propData)}>{propData.ICT_Remark}</td>
     )
 }
