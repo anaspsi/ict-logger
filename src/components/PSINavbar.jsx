@@ -2,7 +2,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import LinkContainer from "react-router-bootstrap/LinkContainer";
-export default function PSINavbar({ onLoggedIn }) {
+export default function PSINavbar({ onLoggedIn, userInfo }) {
     const navigate = useNavigate()
     function handleSignout() {
         if (confirm('Are you sure ?')) {
@@ -34,7 +34,7 @@ export default function PSINavbar({ onLoggedIn }) {
                         <LinkContainer to="/about">
                             <Nav.Link >About</Nav.Link>
                         </LinkContainer>
-                        <Nav.Link onClick={handleSignout} >Sign out</Nav.Link>
+                        <Nav.Link onClick={handleSignout} title={'Bye ' + userInfo.name}>Sign out</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Container>

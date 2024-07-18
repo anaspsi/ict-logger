@@ -8,7 +8,7 @@ import { faFileExcel } from "@fortawesome/free-regular-svg-icons"
 import { saveAs } from "file-saver"
 import { useRef } from "react"
 
-export default function Home() {
+export default function Home({ userInfo }) {
     const [formData, setFormData] = useState({
         period1: "",
         period2: "",
@@ -31,7 +31,7 @@ export default function Home() {
     const refInputDate1 = useRef(null)
     const refInputDate2 = useRef(null)
     const refInputRemark = useRef(null)
-    const [userInfo, setUserInfo] = useState({})
+
     const [show, setShow] = useState(false);
     const [show2, setShow2] = useState(false);
 
@@ -79,18 +79,7 @@ export default function Home() {
             programming_file: "",
         })
 
-        const config = {
-            headers: {
-                Authorization: 'Bearer ' + localStorage.getItem('token')
-            }
-        }
-        axios.get(import.meta.env.VITE_APP_ENDPOINT + '/user', config)
-            .then((response) => {
-                const datanya = response.data
-                setUserInfo({ ...datanya })
-            }).catch(error => {
 
-            })
     }, [])
 
     function handleClickSearch() {

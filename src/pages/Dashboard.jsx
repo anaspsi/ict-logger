@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Home from "./Home"
 
-export default function Dashboard() {
+export default function Dashboard({ userInfo }) {
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -12,12 +12,10 @@ export default function Dashboard() {
         }
     }, [])
 
-
-
     return (
         <>
 
-            <Home />
+            <Home userInfo={userInfo} />
         </>
     )
 }
