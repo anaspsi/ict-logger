@@ -25,6 +25,7 @@ export default function Home() {
 
     const [isSearching, setIsSearching] = useState(false)
     const [isExporting, setIsExporting] = useState(false)
+    const [isChecking, setIsChecking] = useState(false)
     const [pageAt, setPageAt] = useState(0)
     const [isMaxPage, setIsMaxPage] = useState(false)
     const refInputDate1 = useRef(null)
@@ -176,8 +177,10 @@ export default function Home() {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
             }
+            setIsChecking(true)
             axios.put(import.meta.env.VITE_APP_ENDPOINT + '/ict/check', selectedRowData, config)
                 .then((response) => {
+                    setIsChecking(false)
                     const theChecekedDate = new Date().toISOString().replace('T', ' ').replace('Z', '')
                     const nextRow = rowData.data.map((item, index) => {
                         if (index == selectedRowDataIndex) {
@@ -186,32 +189,30 @@ export default function Home() {
                                     return {
                                         ...item, ICT_Lupdt1: theChecekedDate
                                     }
-                                    break;
                                 case '2':
                                     return {
                                         ...item, ICT_Lupdt2: theChecekedDate
                                     }
-                                    break;
                                 case '3':
                                     return {
                                         ...item, ICT_Lupdt3: theChecekedDate
                                     }
-                                    break;
                                 case '4':
                                     return {
                                         ...item, ICT_Lupdt4: theChecekedDate
                                     }
-                                    break;
                                 case '5':
                                     return {
                                         ...item, ICT_Lupdt5: theChecekedDate
                                     }
-                                    break;
                                 case '6':
                                     return {
                                         ...item, ICT_Lupdt6: theChecekedDate
                                     }
-                                    break;
+                                default:
+                                    return {
+                                        ...item, ICT_LupdtApp: theChecekedDate
+                                    }
                             }
                         } else {
                             return item
@@ -222,6 +223,7 @@ export default function Home() {
                     })
                     setShow(false)
                 }).catch(error => {
+                    setIsChecking(false)
                     alert(error)
                 })
 
@@ -361,6 +363,7 @@ export default function Home() {
                                     <th rowSpan={2} className="align-middle">User Level</th>
                                     <th rowSpan={2} className="align-middle">Program File</th>
                                     <th colSpan={6} className="text-center">Checked By</th>
+                                    <th className="align-middle">Approval</th>
                                     <th rowSpan={2} className="align-middle">Remark</th>
                                 </tr>
                                 <tr className="second">
@@ -370,6 +373,7 @@ export default function Home() {
                                     <th style={{ whiteSpace: 'nowrap' }}>Sanawi</th>
                                     <th style={{ whiteSpace: 'nowrap' }}>Kiswanto</th>
                                     <th style={{ whiteSpace: 'nowrap' }}>Muttaqin</th>
+                                    <th style={{ whiteSpace: 'nowrap' }}>Mr. Syofyan</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -395,6 +399,7 @@ export default function Home() {
                                             <PSITd proInfo={item.ICT_Lupdt4} proRole={4} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
                                             <PSITd proInfo={item.ICT_Lupdt5} proRole={5} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
                                             <PSITd proInfo={item.ICT_Lupdt6} proRole={6} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PSITd proInfo={item.ICT_LupdtApp} proRole={7} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
                                             <PISTdRemark onShowModalRemark={handleShowModalRemark} propData={item} propDataIndex={index} />
                                         </tr>
                                     })
@@ -435,7 +440,7 @@ export default function Home() {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" onClick={handleSetChecked}>
+                    <Button variant="primary" onClick={handleSetChecked} disabled={isChecking}>
                         Conform
                     </Button>
                 </Modal.Footer>
@@ -463,8 +468,16 @@ export default function Home() {
 }
 
 function PSITd({ proInfo, proRole, proCurrentRole, propData, propDataIndex, onCheck }) {
-    if (proInfo.substring(0, 4) == '1900') {
-        return <td className="text-center"> {proRole == proCurrentRole ? <button type="button" className="btn btn-sm btn-primary" onClick={(e) => onCheck(propDataIndex, propData)}>Check</button> : ''}</td>
+    if (proInfo?.substring(0, 4) == '1900' || !proInfo) {
+        if (proRole == 7) {
+            if (propData.ICT_Lupdt6?.substring(0, 4) == '1900' || !propData.ICT_Lupdt6) {
+                return <td className="text-center"></td>
+            }
+
+            return <td className="text-center"> {proRole == proCurrentRole ? <button type="button" className="btn btn-sm btn-primary" onClick={(e) => onCheck(propDataIndex, propData)}>Check</button> : ''}</td>
+        } else {
+            return <td className="text-center"> {proRole == proCurrentRole ? <button type="button" className="btn btn-sm btn-primary" onClick={(e) => onCheck(propDataIndex, propData)}>Check</button> : ''}</td>
+        }
     }
     return (
         <td className="text-center">{proInfo}</td>
