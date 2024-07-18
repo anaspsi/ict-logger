@@ -31,9 +31,9 @@ export default function Login({ onLoggedIn }) {
         axios
             .post(import.meta.env.VITE_APP_ENDPOINT + '/users/login', dataInput)
             .then((response) => {
-                onLoggedIn(true)
                 const token = response.data.token
                 localStorage.setItem('token', token)
+                onLoggedIn(true)
                 setIsSigning(false)
                 setMessageFromServer('')
                 navigate('/dashboard')

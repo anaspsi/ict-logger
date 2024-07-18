@@ -12,28 +12,28 @@ export default function App() {
 
   function handleLoggedIn(theval) {
     setIsLoggedIn(theval)
+    const config = {
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token')
+      }
+    }
+    axios.get(import.meta.env.VITE_APP_ENDPOINT + '/user', config)
+      .then((response) => {
+        const datanya = response.data
+        setUserInfo({ ...datanya })
+      }).catch(error => {
+        console.log({ at: 'app.jsx', error })
+      })
   }
 
   useEffect(() => {
     if (localStorage.getItem('token')) {
       handleLoggedIn(true)
-
-      const config = {
-        headers: {
-          Authorization: 'Bearer ' + localStorage.getItem('token')
-        }
-      }
-      axios.get(import.meta.env.VITE_APP_ENDPOINT + '/user', config)
-        .then((response) => {
-          const datanya = response.data
-          setUserInfo({ ...datanya })
-        }).catch(error => {
-          console.log({ at: 'app.jsx', error })
-        })
     } else {
       handleLoggedIn(false)
     }
   }, [])
+
 
   return (
     <div>
