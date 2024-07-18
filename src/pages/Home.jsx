@@ -25,15 +25,21 @@ export default function Home() {
 
     const [isSearching, setIsSearching] = useState(false)
     const [isExporting, setIsExporting] = useState(false)
+    const [isChecking, setIsChecking] = useState(false)
     const [pageAt, setPageAt] = useState(0)
     const [isMaxPage, setIsMaxPage] = useState(false)
     const refInputDate1 = useRef(null)
     const refInputDate2 = useRef(null)
+    const refInputRemark = useRef(null)
     const [userInfo, setUserInfo] = useState({})
     const [show, setShow] = useState(false);
+    const [show2, setShow2] = useState(false);
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
+    }
+    function handleChangeRemark(e) {
+        setSelectedRowData({ ...selectedRowData, [e.target.name]: e.target.value })
     }
 
     useEffect(() => {
@@ -148,12 +154,20 @@ export default function Home() {
 
     function handleClickCheck(parIndex, parData) {
         setSelectedRowData(parData)
-        setShow(true)
         setSelectedRowDataIndex(parIndex)
+        setShow(true)
     }
 
     function handleClose() {
         setShow(false)
+    }
+    function handleCloseModalRemark() {
+        setShow2(false)
+    }
+    function handleShowModalRemark(parIndex, parData) {
+        setSelectedRowData(parData)
+        setSelectedRowDataIndex(parIndex)
+        setShow2(true)
     }
 
     function handleSetChecked() {
@@ -163,13 +177,42 @@ export default function Home() {
                     Authorization: 'Bearer ' + localStorage.getItem('token')
                 }
             }
+            setIsChecking(true)
             axios.put(import.meta.env.VITE_APP_ENDPOINT + '/ict/check', selectedRowData, config)
                 .then((response) => {
+                    setIsChecking(false)
                     const theChecekedDate = new Date().toISOString().replace('T', ' ').replace('Z', '')
                     const nextRow = rowData.data.map((item, index) => {
                         if (index == selectedRowDataIndex) {
-                            return {
-                                ...item, ICT_Lupdt1: theChecekedDate
+                            switch (userInfo.role_id) {
+                                case '1':
+                                    return {
+                                        ...item, ICT_Lupdt1: theChecekedDate
+                                    }
+                                case '2':
+                                    return {
+                                        ...item, ICT_Lupdt2: theChecekedDate
+                                    }
+                                case '3':
+                                    return {
+                                        ...item, ICT_Lupdt3: theChecekedDate
+                                    }
+                                case '4':
+                                    return {
+                                        ...item, ICT_Lupdt4: theChecekedDate
+                                    }
+                                case '5':
+                                    return {
+                                        ...item, ICT_Lupdt5: theChecekedDate
+                                    }
+                                case '6':
+                                    return {
+                                        ...item, ICT_Lupdt6: theChecekedDate
+                                    }
+                                default:
+                                    return {
+                                        ...item, ICT_LupdtApp: theChecekedDate
+                                    }
                             }
                         } else {
                             return item
@@ -180,9 +223,49 @@ export default function Home() {
                     })
                     setShow(false)
                 }).catch(error => {
+                    setIsChecking(false)
                     alert(error)
                 })
 
+        }
+    }
+
+    function hanldeSetRemark() {
+        if (confirm('Are you sure ?')) {
+            const config = {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            }
+            axios.put(import.meta.env.VITE_APP_ENDPOINT + '/ict/remark', selectedRowData, config)
+                .then((response) => {
+                    const nextRow = rowData.data.map((item, index) => {
+                        if (index == selectedRowDataIndex) {
+                            if (selectedRowData.ICT_Remark) {
+                                let newRemark = JSON.parse(selectedRowData.ICT_Remark)
+                                newRemark.push({ userid: userInfo.nick_name, remark: selectedRowData.ICT_RemarkNew })
+                                return {
+                                    ...item, ICT_Remark: JSON.stringify(newRemark)
+                                }
+                            } else {
+
+                                let newRemark = [{ userid: userInfo.nick_name, remark: selectedRowData.ICT_RemarkNew }]
+                                return {
+                                    ...item, ICT_Remark: JSON.stringify(newRemark)
+                                }
+                            }
+                        } else {
+                            return item
+                        }
+                    })
+                    setRowData({
+                        data: nextRow
+                    })
+
+                    setShow2(false)
+                }).catch(error => {
+                    alert(error)
+                })
         }
     }
 
@@ -263,7 +346,7 @@ export default function Home() {
             <div className="row">
                 <div className="col-md-12 mb-1">
                     <div className="table-responsive" id="coba">
-                        <table className="table align-middle table-sm table-bordered ">
+                        <table className="table align-middle table-sm table-bordered table-hover">
                             <thead className="text-center table-dark">
                                 <tr className="first">
                                     <th rowSpan={2} className="align-middle">Date</th>
@@ -280,6 +363,7 @@ export default function Home() {
                                     <th rowSpan={2} className="align-middle">User Level</th>
                                     <th rowSpan={2} className="align-middle">Program File</th>
                                     <th colSpan={6} className="text-center">Checked By</th>
+                                    <th className="align-middle">Approval</th>
                                     <th rowSpan={2} className="align-middle">Remark</th>
                                 </tr>
                                 <tr className="second">
@@ -289,12 +373,13 @@ export default function Home() {
                                     <th style={{ whiteSpace: 'nowrap' }}>Sanawi</th>
                                     <th style={{ whiteSpace: 'nowrap' }}>Kiswanto</th>
                                     <th style={{ whiteSpace: 'nowrap' }}>Muttaqin</th>
+                                    <th style={{ whiteSpace: 'nowrap' }}>Mr. Syofyan</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {
                                     isSearching ? <tr><td colSpan={20}>Please wait</td></tr> : rowData.data.map((item, index) => {
-                                        return <tr key={index}>
+                                        return <tr key={index} className="font-monospace">
                                             <td>{item.ICT_Date}</td>
                                             <td>{item.ICT_Time}</td>
                                             <td>{item.ICT_No}</td>
@@ -314,6 +399,8 @@ export default function Home() {
                                             <PSITd proInfo={item.ICT_Lupdt4} proRole={4} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
                                             <PSITd proInfo={item.ICT_Lupdt5} proRole={5} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
                                             <PSITd proInfo={item.ICT_Lupdt6} proRole={6} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PSITd proInfo={item.ICT_LupdtApp} proRole={7} proCurrentRole={userInfo.role_id} propData={item} propDataIndex={index} onCheck={handleClickCheck} />
+                                            <PISTdRemark onShowModalRemark={handleShowModalRemark} propData={item} propDataIndex={index} />
                                         </tr>
                                     })
                                 }
@@ -353,8 +440,26 @@ export default function Home() {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" onClick={handleSetChecked}>
+                    <Button variant="primary" onClick={handleSetChecked} disabled={isChecking}>
                         Conform
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={show2} onHide={handleCloseModalRemark} size="lg" onEntered={() => { refInputRemark.current.focus() }}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Write remark</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col">
+                            <label className="form-label">Remark</label>
+                            <textarea ref={refInputRemark} className="form-control" rows="3" onChange={handleChangeRemark} name="ICT_RemarkNew"></textarea>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={hanldeSetRemark}>
+                        Save
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -363,10 +468,34 @@ export default function Home() {
 }
 
 function PSITd({ proInfo, proRole, proCurrentRole, propData, propDataIndex, onCheck }) {
-    if (proInfo.substring(0, 4) == '1900') {
-        return <td className="text-center"> {proRole == proCurrentRole ? <button type="button" className="btn btn-sm btn-primary" onClick={(e) => onCheck(propDataIndex, propData)}>Check</button> : ''}</td>
+    if (proInfo?.substring(0, 4) == '1900' || !proInfo) {
+        if (proRole == 7) {
+            if (propData.ICT_Lupdt6?.substring(0, 4) == '1900' || !propData.ICT_Lupdt6) {
+                return <td className="text-center"></td>
+            }
+
+            return <td className="text-center"> {proRole == proCurrentRole ? <button type="button" className="btn btn-sm btn-primary" onClick={(e) => onCheck(propDataIndex, propData)}>Check</button> : ''}</td>
+        } else {
+            return <td className="text-center"> {proRole == proCurrentRole ? <button type="button" className="btn btn-sm btn-primary" onClick={(e) => onCheck(propDataIndex, propData)}>Check</button> : ''}</td>
+        }
     }
     return (
         <td className="text-center">{proInfo}</td>
+    )
+}
+
+function PISTdRemark({ onShowModalRemark, propData, propDataIndex, }) {
+    let item = JSON.parse(propData.ICT_Remark)
+    if (item) {
+        return (
+            <td style={{ cursor: 'pointer' }} onClick={(e) => onShowModalRemark(propDataIndex, propData)}>
+                {item.map((item, index) => {
+                    return (<div key={index}><Badge bg="info" >{item.remark}</Badge> </div>)
+                })}
+            </td>
+        )
+    }
+    return (
+        <td style={{ cursor: 'pointer' }} onClick={(e) => onShowModalRemark(propDataIndex, propData)}>{propData.ICT_Remark}</td>
     )
 }
