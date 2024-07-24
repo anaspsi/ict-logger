@@ -2,7 +2,6 @@
 import { Navbar, Nav, Container } from "react-bootstrap";
 import LinkContainer from "react-router-bootstrap/LinkContainer";
 export default function PSINavbar({ userInfo, onShowOffCanvas }) {
-
     return (
         <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary" data-bs-theme="dark" >
             <Container fluid>
