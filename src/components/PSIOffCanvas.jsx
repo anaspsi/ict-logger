@@ -14,6 +14,7 @@ export default function PSIOffCanvas({ onLoggedIn, showOffCanvas, userInfo, onCl
                 .then((response) => {
                     localStorage.removeItem('token')
                     onLoggedIn(false)
+                    onCloseOffCanvas()
                     navigate('/')
                 }).catch(error => {
                     console.log(error)

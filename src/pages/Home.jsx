@@ -27,6 +27,7 @@ export default function Home({ userInfo }) {
     const [isSearching, setIsSearching] = useState(false)
     const [isExporting, setIsExporting] = useState(false)
     const [isChecking, setIsChecking] = useState(false)
+    const [isApproving, setIsApproving] = useState(false)
     const [pageAt, setPageAt] = useState(0)
     const [isMaxPage, setIsMaxPage] = useState(false)
     const refInputDate1 = useRef(null)
@@ -122,7 +123,7 @@ export default function Home({ userInfo }) {
         goToPage(pageAt + 1)
     }
 
-    async function handleClickExport() {
+    function handleClickExport() {
         const params = new URLSearchParams(formData).toString()
         setIsExporting(true)
         if (confirm('Are you sure want to export the data ?')) {
@@ -161,63 +162,60 @@ export default function Home({ userInfo }) {
     }
 
     function handleSetChecked() {
-        if (confirm('Are you sure ?')) {
-            const config = {
-                headers: {
-                    Authorization: 'Bearer ' + localStorage.getItem('token')
-                }
+        const config = {
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token')
             }
-            setIsChecking(true)
-            axios.put(import.meta.env.VITE_APP_ENDPOINT + '/ict/check', selectedRowData, config)
-                .then((response) => {
-                    setIsChecking(false)
-                    const theChecekedDate = new Date().toISOString().replace('T', ' ').replace('Z', '')
-                    const nextRow = rowData.data.map((item, index) => {
-                        if (index == selectedRowDataIndex) {
-                            switch (userInfo.role_id) {
-                                case '1':
-                                    return {
-                                        ...item, ICT_Lupdt1: theChecekedDate
-                                    }
-                                case '2':
-                                    return {
-                                        ...item, ICT_Lupdt2: theChecekedDate
-                                    }
-                                case '3':
-                                    return {
-                                        ...item, ICT_Lupdt3: theChecekedDate
-                                    }
-                                case '4':
-                                    return {
-                                        ...item, ICT_Lupdt4: theChecekedDate
-                                    }
-                                case '5':
-                                    return {
-                                        ...item, ICT_Lupdt5: theChecekedDate
-                                    }
-                                case '6':
-                                    return {
-                                        ...item, ICT_Lupdt6: theChecekedDate
-                                    }
-                                default:
-                                    return {
-                                        ...item, ICT_LupdtApp: theChecekedDate
-                                    }
-                            }
-                        } else {
-                            return item
-                        }
-                    })
-                    setRowData({
-                        data: nextRow
-                    })
-                    setShow(false)
-                }).catch(error => {
-                    setIsChecking(false)
-                    alert(error)
-                })
-
         }
+        setIsChecking(true)
+        axios.put(import.meta.env.VITE_APP_ENDPOINT + '/ict/check', selectedRowData, config)
+            .then((response) => {
+                setIsChecking(false)
+                const theChecekedDate = new Date().toISOString().replace('T', ' ').replace('Z', '')
+                const nextRow = rowData.data.map((item, index) => {
+                    if (index == selectedRowDataIndex) {
+                        switch (userInfo.role_id) {
+                            case '1':
+                                return {
+                                    ...item, ICT_Lupdt1: theChecekedDate
+                                }
+                            case '2':
+                                return {
+                                    ...item, ICT_Lupdt2: theChecekedDate
+                                }
+                            case '3':
+                                return {
+                                    ...item, ICT_Lupdt3: theChecekedDate
+                                }
+                            case '4':
+                                return {
+                                    ...item, ICT_Lupdt4: theChecekedDate
+                                }
+                            case '5':
+                                return {
+                                    ...item, ICT_Lupdt5: theChecekedDate
+                                }
+                            case '6':
+                                return {
+                                    ...item, ICT_Lupdt6: theChecekedDate
+                                }
+                            default:
+                                return {
+                                    ...item, ICT_LupdtApp: theChecekedDate
+                                }
+                        }
+                    } else {
+                        return item
+                    }
+                })
+                setRowData({
+                    data: nextRow
+                })
+                setShow(false)
+            }).catch(error => {
+                setIsChecking(false)
+                alert(error)
+            })
     }
 
     function hanldeSetRemark() {
@@ -255,6 +253,44 @@ export default function Home({ userInfo }) {
                     setShow2(false)
                 }).catch(error => {
                     alert(error)
+                })
+        }
+    }
+
+    function handleApprove() {
+        if (formData.period1 != formData.period2) {
+            alert('Only one day is required to be processed')
+            return
+        }
+        if (confirm('Are you sure ?')) {
+            const config = {
+                headers: {
+                    Authorization: 'Bearer ' + localStorage.getItem('token')
+                }
+            }
+            setIsApproving(true)
+            axios.put(import.meta.env.VITE_APP_ENDPOINT + '/ict/check-some', formData, config)
+                .then((response) => {
+                    setIsApproving(false)
+                    const theChecekedDate = new Date().toISOString().replace('T', ' ').replace('Z', '')
+                    const nextRow = rowData.data.map((item, index) => {
+                        if (item.ICT_Lupdt6) {
+                            if (item.ICT_Lupdt6.substring(0, 4) != '1900' && !item.ICT_LupdtApp) {
+                                return {
+                                    ...item, ICT_LupdtApp: theChecekedDate
+                                }
+                            }
+                            return item
+                        } else {
+                            return item
+                        }
+
+                    })
+                    setRowData({
+                        data: nextRow
+                    })
+                }).catch(error => {
+                    setIsApproving(false)
                 })
         }
     }
@@ -327,14 +363,17 @@ export default function Home({ userInfo }) {
                     </div>
                 </div>
                 <div className="row" id="stack8">
-                    <div className="col-md-6 mb-3">
+                    <div className="col-md-4 mb-3">
                         <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
                             <button type="button" className="btn btn-primary" disabled={isSearching} onClick={handleClickSearch}>Search</button>
                             <button type="reset" className="btn btn-outline-primary">Reset search criteria</button>
                             <button type="button" className="btn btn-success" title="Export to spreadsheet file" onClick={handleClickExport} disabled={isExporting}><FontAwesomeIcon icon={faFileExcel} /></button>
                         </div>
                     </div>
-                    <div className="col-md-6 mb-3 text-end">
+                    <div className="col-md-4 mb-3 text-center">
+                        <PSIButtonApproval propDataRows={rowData} proCurrentRole={userInfo.role_id} onApprove={handleApprove} propApproving={isApproving} />
+                    </div>
+                    <div className="col-md-4 mb-3 text-end">
                         <Badge bg="info">{rowData.data.length > 0 ? rowData.data.length + ' rows found' : ''}</Badge>
                     </div>
                 </div>
@@ -502,4 +541,20 @@ function PISTdRemark({ onShowModalRemark, propData, propDataIndex, }) {
     return (
         <td style={{ cursor: 'pointer' }} onClick={(e) => onShowModalRemark(propDataIndex, propData)}>{propData.ICT_Remark}</td>
     )
+}
+
+function PSIButtonApproval({ proCurrentRole, propDataRows, onApprove, propApproving }) {
+    const totalRowsTobeApproved = propDataRows.data.filter((item) => {
+        if (item.ICT_Lupdt6) {
+            if (item.ICT_Lupdt6.substring(0, 4) != '1900' && !item.ICT_LupdtApp) {
+                return item
+            }
+        }
+    }).length
+    if (totalRowsTobeApproved > 0 && proCurrentRole == 7) {
+        return (
+            <button disabled={propApproving} className="btn btn-sm btn-primary" onClick={onApprove} type="button"> Approve</button>
+        )
+    }
+    return ('')
 }
