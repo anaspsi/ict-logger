@@ -14,6 +14,7 @@ export default function Home({ userInfo }) {
         period2: "",
         ict_no: "",
         model: "",
+        step: "",
         file_name: "",
         item: "",
         operator_name: "",
@@ -280,10 +281,16 @@ export default function Home({ userInfo }) {
                     </div>
                 </div>
                 <div className="row" id="stack3">
-                    <div className="col-md-6">
+                    <div className="col-md-3">
                         <div className="input-group input-group-sm mb-1">
                             <span className="input-group-text" >Model</span>
                             <input type="text" className="form-control" name="model" maxLength={50} onChange={handleChange} />
+                        </div>
+                    </div>
+                    <div className="col-md-3">
+                        <div className="input-group input-group-sm mb-1">
+                            <span className="input-group-text" >Step</span>
+                            <input type="text" className="form-control" name="step" maxLength={15} onChange={handleChange} />
                         </div>
                     </div>
                 </div>
@@ -417,6 +424,14 @@ export default function Home({ userInfo }) {
                 <Modal.Body>
                     <div className="row">
                         <div className="col">
+                            <div className="input-group input-group-sm mb-1">
+                                <span className="input-group-text" >Device</span>
+                                <input type="text" className="form-control" value={selectedRowData.ICT_Device} disabled />
+                            </div>
+                            <div className="input-group input-group-sm mb-1">
+                                <span className="input-group-text" >Item</span>
+                                <input type="text" className="form-control" value={selectedRowData.ICT_Item} disabled />
+                            </div>
                             <div className="input-group input-group-sm mb-1">
                                 <span className="input-group-text" >Before Value</span>
                                 <input type="text" className="form-control" value={selectedRowData.ICT_BValue} disabled />
