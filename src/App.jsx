@@ -5,6 +5,7 @@ import About from "./pages/About"
 import PSINavbar from "./components/PSINavbar"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import PSIOffCanvas from "./components/PSIOffCanvas"
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -48,11 +49,12 @@ export default function App() {
   return (
     <div>
       {
-        isLoggedIn ? <PSINavbar userInfo={userInfo} onShowOffCanvas={handleShowOffCanvas} /> : ''
+        isLoggedIn ? <><PSINavbar userInfo={userInfo} onShowOffCanvas={handleShowOffCanvas} />
+          <PSIOffCanvas onLoggedIn={handleLoggedIn} showOffCanvas={showOffCanvas} userInfo={userInfo} onCloseOffCanvas={handleCloseOffCanvas} /></> : ''
       }
       <Routes>
         <Route path="/" element={<Login onLoggedIn={handleLoggedIn} />} />
-        <Route path="/dashboard" element={<Dashboard onLoggedIn={handleLoggedIn} userInfo={userInfo} showOffCanvas={showOffCanvas} handleCloseOffCanvas={handleCloseOffCanvas} />} />
+        <Route path="/dashboard" element={<Dashboard userInfo={userInfo} />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<Login onLoggedIn={handleLoggedIn} />} />
       </Routes>
