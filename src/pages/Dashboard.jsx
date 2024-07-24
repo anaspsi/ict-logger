@@ -1,8 +1,9 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Home from "./Home"
+import PSIOffCanvas from "../components/PSIOffCanvas"
 
-export default function Dashboard({ userInfo }) {
+export default function Dashboard({ onLoggedIn, userInfo, showOffCanvas, handleCloseOffCanvas }) {
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -16,6 +17,7 @@ export default function Dashboard({ userInfo }) {
         <>
 
             <Home userInfo={userInfo} />
+            <PSIOffCanvas onLoggedIn={onLoggedIn} showOffCanvas={showOffCanvas} userInfo={userInfo} onCloseOffCanvas={handleCloseOffCanvas} />
         </>
     )
 }

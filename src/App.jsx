@@ -9,21 +9,24 @@ import axios from "axios"
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userInfo, setUserInfo] = useState({})
+  const [showOffCanvas, setShowOffCanvas] = useState(false);
 
   function handleLoggedIn(theval) {
     setIsLoggedIn(theval)
-    const config = {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token')
+    if (theval) {
+      const config = {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token')
+        }
       }
+      axios.get(import.meta.env.VITE_APP_ENDPOINT + '/user', config)
+        .then((response) => {
+          const datanya = response.data
+          setUserInfo({ ...datanya })
+        }).catch(error => {
+          console.log({ at: 'app.jsx', error })
+        })
     }
-    axios.get(import.meta.env.VITE_APP_ENDPOINT + '/user', config)
-      .then((response) => {
-        const datanya = response.data
-        setUserInfo({ ...datanya })
-      }).catch(error => {
-        console.log({ at: 'app.jsx', error })
-      })
   }
 
   useEffect(() => {
@@ -34,15 +37,22 @@ export default function App() {
     }
   }, [])
 
+  function handleShowOffCanvas() {
+    setShowOffCanvas(true)
+  }
+  function handleCloseOffCanvas() {
+    setShowOffCanvas(false)
+  }
+
 
   return (
     <div>
       {
-        isLoggedIn ? <PSINavbar onLoggedIn={handleLoggedIn} userInfo={userInfo} /> : ''
+        isLoggedIn ? <PSINavbar userInfo={userInfo} onShowOffCanvas={handleShowOffCanvas} /> : ''
       }
       <Routes>
         <Route path="/" element={<Login onLoggedIn={handleLoggedIn} />} />
-        <Route path="/dashboard" element={<Dashboard userInfo={userInfo} />} />
+        <Route path="/dashboard" element={<Dashboard onLoggedIn={handleLoggedIn} userInfo={userInfo} showOffCanvas={showOffCanvas} handleCloseOffCanvas={handleCloseOffCanvas} />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<Login onLoggedIn={handleLoggedIn} />} />
       </Routes>
