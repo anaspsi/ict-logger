@@ -19,6 +19,7 @@ export default function Home({ userInfo }) {
         item: "",
         operator_name: "",
         programming_file: "",
+        self_check: "",
     })
     const [rowData, setRowData] = useState({ data: [] })
     const [selectedRowData, setSelectedRowData] = useState({})
@@ -79,6 +80,7 @@ export default function Home({ userInfo }) {
             item: "",
             operator_name: "",
             programming_file: "",
+            self_check: "",
         })
 
 
@@ -359,6 +361,16 @@ export default function Home({ userInfo }) {
                         <div className="input-group input-group-sm mb-1">
                             <span className="input-group-text">Programming File</span>
                             <input type="text" className="form-control" name="programming_file" maxLength={50} onChange={handleChange} />
+                        </div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="input-group input-group-sm mb-1">
+                            <span className="input-group-text">Filter Self-Checking</span>
+                            <select className="form-select" name="self_check" onChange={handleChange}>
+                                <option value={'-'}>All</option>
+                                <option value={'1'}>Not Checked</option>
+                                <option value={'2'}>Checked</option>
+                            </select>
                         </div>
                     </div>
                 </div>
