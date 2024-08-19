@@ -217,6 +217,7 @@ export default function Home({ userInfo }) {
             }).catch(error => {
                 setIsChecking(false)
                 alert(error)
+                alert(error.response.data.message)
             })
     }
 
