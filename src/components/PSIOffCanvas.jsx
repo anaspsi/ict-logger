@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Offcanvas } from "react-bootstrap"
 export default function PSIOffCanvas({ onLoggedIn, showOffCanvas, userInfo, onCloseOffCanvas }) {
     const navigate = useNavigate()
@@ -17,7 +17,12 @@ export default function PSIOffCanvas({ onLoggedIn, showOffCanvas, userInfo, onCl
                     onCloseOffCanvas()
                     navigate('/')
                 }).catch(error => {
-                    console.log(error)
+                    if (error.status) {
+                        if (error.status === 401) {
+                            localStorage.removeItem('token')
+                            navigate('/')
+                        }
+                    }
                 })
         }
     }

@@ -1,6 +1,6 @@
 import { useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import Home from "./Home"
+import { useNavigate } from "react-router"
+import { Outlet } from "react-router"
 
 
 export default function Dashboard({ userInfo }) {
@@ -14,8 +14,6 @@ export default function Dashboard({ userInfo }) {
     }, [])
 
     return (
-        <>
-            <Home userInfo={userInfo} />
-        </>
+        <Outlet />
     )
 }

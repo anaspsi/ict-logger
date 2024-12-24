@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useEffect } from "react"
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router"
 import PSIAlert from "../components/PSIAlert"
 
 export default function Login({ onLoggedIn }) {
