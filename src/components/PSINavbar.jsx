@@ -1,23 +1,36 @@
 
+import { useState } from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import LinkContainer from "react-router-bootstrap/LinkContainer";
+import { NavLink } from "react-router";
 export default function PSINavbar({ userInfo, onShowOffCanvas }) {
+    const [isNavCollapsed, setIsNavCollapsed] = useState(true);
+
+    const handleNavCollapse = () => {
+        setIsNavCollapsed(!isNavCollapsed)
+    };
+
     return (
         <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary" data-bs-theme="dark" >
             <Container fluid>
                 <Navbar.Brand href="#home">ICT Logger</Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="responsive-navbar-nav">
+                <button onClick={handleNavCollapse} className={`navbar-toggler ${isNavCollapsed ? '' : 'collapsed'}`} type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
+                </button>
+                <div className={`collapse navbar-collapse ${isNavCollapsed ? '' : 'show'}`} id="navbarSupportedContent">
                     <Nav className="me-auto">
-                        <LinkContainer to="/dashboard">
-                            <Nav.Link>Home</Nav.Link>
-                        </LinkContainer>
-                        <LinkContainer to="/about">
-                            <Nav.Link >About</Nav.Link>
-                        </LinkContainer>
+                        <Nav.Item>
+                            <NavLink to="/dashboard" onClick={handleNavCollapse} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                                Home
+                            </NavLink>
+                        </Nav.Item>
+                        <Nav.Item>
+                            <NavLink to="/dashboard/about" onClick={handleNavCollapse} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                                About
+                            </NavLink>
+                        </Nav.Item>
                         <Nav.Link onClick={onShowOffCanvas}>{'Hi ' + userInfo.name}</Nav.Link>
                     </Nav>
-                </Navbar.Collapse>
+                </div>
             </Container>
         </Navbar>
     )
